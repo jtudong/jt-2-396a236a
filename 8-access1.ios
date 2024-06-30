@@ -1,11 +1,11 @@
------------------------ Terminal Log (Print Output) 6/30/2024 1:13:10 PM -----------------------
+----------------------- Terminal Log (Print Output) 6/30/2024 1:07:00 PM -----------------------
 sh run
 Building configuration...
 
-Current configuration : 3549 bytes
+Current configuration : 3914 bytes
 !
-! Last configuration change at 13:11:42 mst Sun Jun 30 2024 by lab
-! NVRAM config last updated at 13:11:49 mst Sun Jun 30 2024 by lab
+! Last configuration change at 13:05:24 mst Sun Jun 30 2024 by lab
+! NVRAM config last updated at 13:05:25 mst Sun Jun 30 2024 by lab
 !
 version 15.2
 service timestamps debug datetime msec localtime show-timezone year
@@ -13,7 +13,7 @@ service timestamps log datetime msec localtime show-timezone year
 no service password-encryption
 service compress-config
 !
-hostname core1
+hostname access1
 !
 boot-start-marker
 boot-end-marker
@@ -31,6 +31,7 @@ clock timezone mst -7 0
 !
 !
 !
+vtp mode off
 !
 ip vrf management
 !
@@ -54,8 +55,11 @@ spanning-tree mode pvst
 spanning-tree extend system-id
 !
 !
-vlan 2550
- name uplink
+vlan 10
+ name workstations
+!
+vlan 20
+ name servers
 !
 vlan 2551
  name inband_mgmt
@@ -74,85 +78,107 @@ vlan 2551
 !
 !
 interface Ethernet0/0
- description fw1 eth1/2
- switchport access vlan 2550
+ description core1 e0/1
+!
+interface Ethernet0/1
+ description workstation
+ switchport access vlan 10
  switchport mode access
  spanning-tree portfast edge
 !
-interface Ethernet0/1
- description access1 e0/0
- switchport trunk allowed vlan 1-2549,2551-4094
- switchport trunk encapsulation dot1q
- switchport mode dynamic desirable
-!
 interface Ethernet0/2
- description access2 e0/0
- switchport trunk allowed vlan 1-2549,2551-4094
- switchport trunk encapsulation dot1q
- switchport mode dynamic desirable
+ description workstation
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
 !
 interface Ethernet0/3
- description fw2 eth1/2
- switchport access vlan 2550
+ description workstation
+ switchport access vlan 10
  switchport mode access
  spanning-tree portfast edge
 !
 interface Ethernet1/0
- description vmnic4
- switchport trunk allowed vlan 1-2549,2551-4094
- switchport trunk encapsulation dot1q
- switchport mode trunk
+ description workstation
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
 !
 interface Ethernet1/1
- description fw1 mgmt
+ description workstation
  switchport access vlan 10
  switchport mode access
  spanning-tree portfast edge
 !
 interface Ethernet1/2
- description fw2 mgmt
+ description workstation
  switchport access vlan 10
  switchport mode access
  spanning-tree portfast edge
 !
 interface Ethernet1/3
- description management
+ description workstation
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet2/0
+ description workstation
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet2/1
+ description workstation
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet2/2
+ description workstation
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet2/3
+ description workstation
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet3/0
+ description workstation
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet3/1
+ description workstation
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet3/2
+ description workstation
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet3/3
  no switchport
  ip vrf forwarding management
- ip address 172.31.255.3 255.255.255.0
-!
-interface Vlan10
- description workstations
- ip address 7.1.10.1 255.255.255.0
- ip helper-address 7.1.20.11 
- ip ospf 1 area 0.0.0.0
-!
-interface Vlan20
- description servers
- ip address 7.1.20.1 255.255.255.0
- ip ospf 1 area 0.0.0.0
-!
-interface Vlan2550
- description firewall uplink
- ip address 7.1.255.1 255.255.255.252
- ip ospf 1 area 0.0.0.0
+ ip address 172.31.255.8 255.255.255.0
 !
 interface Vlan2551
  description inband_mgmt
- ip address 7.1.255.129 255.255.255.128
- ip ospf 1 area 0.0.0.0
-!
-router ospf 1
- router-id 7.1.255.1
- passive-interface default
- no passive-interface Vlan2550
+ ip address 7.1.255.138 255.255.255.128
 !
 ip forward-protocol nd
 !
 no ip http server
 no ip http secure-server
 !
-ip route 0.0.0.0 0.0.0.0 7.1.255.2 254
+ip route 0.0.0.0 0.0.0.0 7.1.255.129 250
 ip route vrf management 0.0.0.0 0.0.0.0 172.31.255.254
 ip ssh version 2
 ip ssh server algorithm encryption aes128-ctr aes192-ctr aes256-ctr
@@ -163,7 +189,7 @@ ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
 !
 snmp-server community company.read RO
 snmp-server location Corp
-snmp-server chassis-id core1
+snmp-server chassis-id access1
 !
 control-plane
 !
@@ -180,9 +206,7 @@ line aux 0
  privilege level 15
  logging synchronous
 line vty 0 4
- session-timeout 30 
  exec-timeout 720 0
- privilege level 15
  logging synchronous
  login local
  transport preferred none
@@ -196,4 +220,4 @@ ntp server 216.239.35.4
 !
 end
 
-core1#
+access1#
