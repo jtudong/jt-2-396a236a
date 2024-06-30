@@ -1,0 +1,187 @@
+Current configuration : 3437 bytes
+!
+! Last configuration change at 08:02:47 mst Sun Jun 30 2024 by lab
+! NVRAM config last updated at 08:02:49 mst Sun Jun 30 2024 by lab
+!
+version 15.2
+service timestamps debug datetime msec localtime show-timezone year
+service timestamps log datetime msec localtime show-timezone year
+no service password-encryption
+service compress-config
+!
+hostname core1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+logging buffered 32768
+enable password cisco
+!
+username lab privilege 15 password 0 lab
+username cisco privilege 15 password 0 cisco
+no aaa new-model
+clock timezone mst -7 0
+!
+!
+!
+!
+!
+!
+ip vrf management
+!
+!
+!
+ip domain-name company.pri
+ip name-server 208.67.222.222
+ip name-server 4.2.2.1
+ip cef
+login on-failure log
+login on-success log
+no ipv6 cef
+!
+!
+archive
+ log config
+  logging enable
+  logging size 200
+  notify syslog contenttype plaintext
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+!
+vlan 2550
+ name uplink
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ description fw1 eth1/2
+ switchport access vlan 2550
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet0/1
+ description access1 e0/0
+ switchport trunk allowed vlan 1-2549,2551-4094
+ switchport trunk encapsulation dot1q
+ switchport mode dynamic desirable
+!
+interface Ethernet0/2
+ description access2 e0/0
+ switchport trunk allowed vlan 1-2549,2551-4094
+ switchport trunk encapsulation dot1q
+ switchport mode dynamic desirable
+!
+interface Ethernet0/3
+ description fw2 eth1/2
+ switchport access vlan 2550
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet1/0
+ description vmnic4
+ switchport trunk allowed vlan 1-2549,2551-4094
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Ethernet1/1
+ description fw1 mgmt
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet1/2
+ description fw2 mgmt
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet1/3
+ description management
+ no switchport
+ ip vrf forwarding management
+ ip address 172.31.255.3 255.255.255.0
+!
+interface Vlan10
+ description workstations
+ ip address 7.1.10.1 255.255.255.0
+ ip helper-address 7.1.20.11
+ ip ospf 1 area 0.0.0.0
+!
+interface Vlan20
+ description servers
+ ip address 7.1.20.1 255.255.255.0
+ ip ospf 1 area 0.0.0.0
+!
+interface Vlan2550
+ description firewall uplink
+ ip address 7.1.255.1 255.255.255.252
+ ip ospf 1 area 0.0.0.0
+!
+router ospf 1
+ router-id 7.1.255.1
+ passive-interface default
+ no passive-interface Vlan2550
+!
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+!
+ip route 0.0.0.0 0.0.0.0 7.1.255.2 254
+ip route vrf management 0.0.0.0 0.0.0.0 172.31.255.254
+ip ssh version 2
+ip ssh server algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+!
+!
+!
+!
+snmp-server community company.read RO
+snmp-server location Corp
+snmp-server chassis-id core1
+!
+control-plane
+!
+!
+line con 0
+ session-timeout 30
+ exec-timeout 15 0
+ privilege level 15
+ logging synchronous
+ login local
+ transport preferred none
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ session-timeout 30
+ exec-timeout 720 0
+ privilege level 15
+ logging synchronous
+ login local
+ transport preferred none
+ transport input ssh
+ transport output ssh
+!
+ntp server 216.239.35.0
+ntp server 216.239.35.8
+ntp server 216.239.35.4
+!
+!
+end
+
