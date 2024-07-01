@@ -1,10 +1,11 @@
------------------------ Terminal Log (Print Output) 6/30/2024 1:03:53 PM -----------------------
-sh run
+----------------------- Terminal Log (Print Output) 6/30/2024 6:51:45 PM -----------------------
+term len 0
+access2#sh run
 Building configuration...
 
-Current configuration : 3791 bytes
+Current configuration : 3789 bytes
 !
-! Last configuration change at 13:01:40 mst Sun Jun 30 2024 by lab
+! Last configuration change at 18:44:10 mst Sun Jun 30 2024 by lab
 !
 version 15.2
 service timestamps debug datetime msec localtime show-timezone year
@@ -80,13 +81,13 @@ interface Ethernet0/0
  description core1 e0/2
 !
 interface Ethernet0/1
- description servers
+ description dc1
  switchport access vlan 20
  switchport mode access
  spanning-tree portfast edge
 !
 interface Ethernet0/2
- description servers
+ description dc2
  switchport access vlan 20
  switchport mode access
  spanning-tree portfast edge
@@ -104,8 +105,8 @@ interface Ethernet1/0
  spanning-tree portfast edge
 !
 interface Ethernet1/1
- description servers
- switchport access vlan 20
+ description pub-s1 e0/3
+ switchport access vlan 2551
  switchport mode access
  spanning-tree portfast edge
 !
