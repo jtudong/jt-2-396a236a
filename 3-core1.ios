@@ -1,11 +1,7 @@
------------------------ Terminal Log (Print Output) 6/30/2024 1:13:10 PM -----------------------
-sh run
-Building configuration...
-
-Current configuration : 3549 bytes
+Current configuration : 3542 bytes
 !
-! Last configuration change at 13:11:42 mst Sun Jun 30 2024 by lab
-! NVRAM config last updated at 13:11:49 mst Sun Jun 30 2024 by lab
+! Last configuration change at 19:17:56 mst Mon Jul 1 2024 by lab
+! NVRAM config last updated at 19:17:57 mst Mon Jul 1 2024 by lab
 !
 version 15.2
 service timestamps debug datetime msec localtime show-timezone year
@@ -58,7 +54,7 @@ vlan 2550
  name uplink
 !
 vlan 2551
- name inband_mgmt
+ name oob-mgmt
 !
 ! 
 !
@@ -116,10 +112,10 @@ interface Ethernet1/2
  spanning-tree portfast edge
 !
 interface Ethernet1/3
- description management
- no switchport
- ip vrf forwarding management
- ip address 172.31.255.3 255.255.255.0
+ description oob-mgmt
+ switchport access vlan 2551
+ switchport mode access
+ spanning-tree portfast edge
 !
 interface Vlan10
  description workstations
@@ -138,9 +134,9 @@ interface Vlan2550
  ip ospf 1 area 0.0.0.0
 !
 interface Vlan2551
- description inband_mgmt
- ip address 7.1.255.129 255.255.255.128
- ip ospf 1 area 0.0.0.0
+ description oob-mgmt
+ ip vrf forwarding management
+ ip address 172.31.255.3 255.255.255.0
 !
 router ospf 1
  router-id 7.1.255.1

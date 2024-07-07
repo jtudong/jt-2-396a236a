@@ -1,14 +1,14 @@
-Current configuration : 2316 bytes
+Current configuration : 1963 bytes
 !
-! Last configuration change at 11:20:26 MST Tue Jul 2 2024 by lab
-! NVRAM config last updated at 11:20:28 MST Tue Jul 2 2024 by lab
+! Last configuration change at 14:44:52 MST Sun Jul 7 2024 by lab
+! NVRAM config last updated at 14:58:03 MST Sun Jul 7 2024 by lab
 !
 version 15.7
 service timestamps debug datetime msec localtime show-timezone year
 service timestamps log datetime msec localtime show-timezone year
 no service password-encryption
 !
-hostname inet
+hostname management
 !
 boot-start-marker
 boot-end-marker
@@ -44,17 +44,10 @@ mmi snmp-timeout 180
 
 
 !
-ip vrf management
 !
 !
 !
-!
-ip domain name company.pri
-ip name-server 208.67.222.222
-ip name-server 4.2.2.1
 ip cef
-login on-failure log
-login on-success log
 no ipv6 cef
 !
 multilink bundle-name authenticated
@@ -67,11 +60,6 @@ multilink bundle-name authenticated
 !
 !
 !
-archive
- log config
-  logging enable
-  logging size 200
-  notify syslog contenttype plaintext
 username lab privilege 15 password 0 lab
 username cisco privilege 15 password 0 cisco
 !
@@ -98,22 +86,21 @@ interface Ethernet0/0
  duplex auto
 !
 interface Ethernet0/1
- description pub-s1 e0/0
- ip address 7.0.0.1 255.255.255.248
+ ip address 172.31.255.254 255.255.255.0
  ip nat inside
  ip virtual-reassembly in
  duplex auto
 !
 interface Ethernet0/2
- description fw3 eth1/1
- ip address 7.0.0.9 255.255.255.248
+ description fw management temporary
+ ip address 7.1.10.1 255.255.255.0
  ip nat inside
  ip virtual-reassembly in
  duplex auto
 !
 interface Ethernet0/3
- ip vrf forwarding management
- ip address 172.31.255.5 255.255.255.0
+ no ip address
+ shutdown
  duplex auto
 !
 ip forward-protocol nd
@@ -122,16 +109,15 @@ ip forward-protocol nd
 no ip http server
 no ip http secure-server
 ip nat inside source list 1 interface Ethernet0/0 overload
-ip route vrf management 0.0.0.0 0.0.0.0 172.31.255.254
+ip nat inside source static 172.31.255.1 100.64.0.15
+ip nat inside source static 172.31.255.4 100.64.0.17
 ip ssh version 2
 !
 ipv6 ioam timestamp
 !
-snmp-server community company.read RO
-snmp-server location Corp
-snmp-server chassis-id inet
 !
 access-list 1 permit 7.0.0.0 0.255.255.255
+access-list 1 permit 172.31.255.0 0.0.0.255
 !
 control-plane
 !
@@ -148,23 +134,19 @@ line con 0
  privilege level 15
  logging synchronous
  login local
- transport preferred none
 line aux 0
- exec-timeout 0 0
- privilege level 15
- logging synchronous
 line vty 0 4
  exec-timeout 720 0
  logging synchronous
  login local
  transport preferred none
- transport input ssh
- transport output ssh
+ transport input telnet ssh
+ transport output none
 !
-ntp server 34.202.215.187
 ntp server pool.ntp.org
-ntp server 216.239.35.4
+ntp server 34.202.215.187
+ntp server time.google.com
 !
 end
 
-inet#
+management#

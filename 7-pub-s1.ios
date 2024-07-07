@@ -1,10 +1,7 @@
------------------------ Terminal Log (Print Output) 6/30/2024 7:52:37 PM -----------------------
- sh run
-Building configuration...
-
-Current configuration : 1738 bytes
+Current configuration : 2026 bytes
 !
-! Last configuration change at 19:48:52 mst Sun Jun 30 2024
+! Last configuration change at 18:06:39 mst Mon Jul 1 2024 by lab
+! NVRAM config last updated at 15:06:05 mst Sun Jul 7 2024 by lab
 !
 version 15.2
 service timestamps debug datetime msec localtime show-timezone year
@@ -31,9 +28,12 @@ clock timezone mst -7 0
 !
 !
 !
+ip vrf management
+!
 !
 !
 ip domain-name company.pri
+ip name-server vrf management 4.2.2.1
 ip cef
 login on-failure log
 login on-success log
@@ -74,13 +74,15 @@ interface Ethernet0/2
 !
 interface Ethernet0/3
  no switchport
- ip address 7.1.255.137 255.255.255.128
+ ip vrf forwarding management
+ ip address 172.31.255.7 255.255.255.0
 !
 ip forward-protocol nd
 !
 ip http server
 ip http secure-server
 !
+ip route vrf management 0.0.0.0 0.0.0.0 172.31.255.254
 ip ssh version 2
 ip ssh server algorithm encryption aes128-ctr aes192-ctr aes256-ctr
 ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
@@ -116,6 +118,9 @@ line vty 0 4
  transport input ssh
  transport output ssh
 !
+ntp logging
+ntp source Ethernet0/0
+ntp server vrf management 216.239.35.4
 !
 !
 end
