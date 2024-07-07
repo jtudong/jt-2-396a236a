@@ -1,10 +1,11 @@
------------------------ Terminal Log (Print Output) 6/30/2024 7:52:37 PM -----------------------
- sh run
+----------------------- Terminal Log (Print Output) 6/30/2024 9:54:45 PM -----------------------
+sh run
 Building configuration...
 
-Current configuration : 1738 bytes
+Current configuration : 2800 bytes
 !
-! Last configuration change at 19:48:52 mst Sun Jun 30 2024
+! Last configuration change at 15:54:26 mst Sun Jun 30 2024 by lab
+! NVRAM config last updated at 18:18:28 mst Sun Jun 30 2024 by lab
 !
 version 15.2
 service timestamps debug datetime msec localtime show-timezone year
@@ -12,7 +13,7 @@ service timestamps log datetime msec localtime show-timezone year
 no service password-encryption
 service compress-config
 !
-hostname pub-s1
+hostname site02_sw01
 !
 boot-start-marker
 boot-end-marker
@@ -31,9 +32,12 @@ clock timezone mst -7 0
 !
 !
 !
+ip vrf management
+!
 !
 !
 ip domain-name company.pri
+ip name-server 7.1.20.11
 ip cef
 login on-failure log
 login on-success log
@@ -50,6 +54,9 @@ spanning-tree mode pvst
 spanning-tree extend system-id
 !
 !
+vlan 2550
+ name uplink
+!
 ! 
 !
 !
@@ -63,24 +70,68 @@ spanning-tree extend system-id
 !
 !
 !
+interface Loopback2551
+ ip address 7.2.255.145 255.255.255.255
+ ip ospf 1 area 0.0.0.0
+!
 interface Ethernet0/0
- description inet g0/0
+ description site01_fw01
+ switchport access vlan 2550
+ switchport mode access
+ spanning-tree portfast edge
 !
 interface Ethernet0/1
- description fw1 eth1/1
+ description dummy trunk
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
 !
 interface Ethernet0/2
- description fw2 eth1/1
 !
 interface Ethernet0/3
- no switchport
- ip address 7.1.255.137 255.255.255.128
+!
+interface Ethernet1/0
+!
+interface Ethernet1/1
+ description site01_fw01 mgmt
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet1/2
+!
+interface Ethernet1/3
+!
+interface Ethernet2/0
+!
+interface Ethernet2/1
+!
+interface Ethernet2/2
+!
+interface Ethernet2/3
+!
+interface Vlan10
+ description workstations
+ ip address 7.2.10.1 255.255.255.0
+ ip ospf 1 area 0.0.0.0
+!
+interface Vlan20
+ description servers
+ ip address 7.2.20.1 255.255.255.0
+ ip ospf 1 area 0.0.0.0
+!
+interface Vlan2550
+ description firewall uplink
+ ip address 7.2.255.1 255.255.255.252
+ ip ospf 1 area 0.0.0.0
+!
+router ospf 1
 !
 ip forward-protocol nd
 !
-ip http server
-ip http secure-server
+no ip http server
+no ip http secure-server
 !
+ip route 0.0.0.0 0.0.0.0 7.2.255.2 250
 ip ssh version 2
 ip ssh server algorithm encryption aes128-ctr aes192-ctr aes256-ctr
 ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
@@ -89,8 +140,8 @@ ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
 !
 !
 snmp-server community company.read RO
-snmp-server location Corp
-snmp-server chassis-id pub-s1
+snmp-server location Site01
+snmp-server chassis-id site01_sw01
 !
 control-plane
 !
@@ -116,8 +167,11 @@ line vty 0 4
  transport input ssh
  transport output ssh
 !
+ntp server 216.239.35.0
+ntp server 216.239.35.8
+ntp server 216.239.35.4
 !
 !
 end
 
-pub-s1#
+site02_sw01#
